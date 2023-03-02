@@ -38,16 +38,20 @@ class BookController extends Controller
         return (new BooksResource($book))
             ->response()
             ->header('Location', route('books.show', [
-                'book' => $book,
+                'id' => $book,
             ]));
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Book $book)
+    public function show(Book $id)
     {
-        return new BooksResource($book);
+        $query = QueryBuilder::for(Book::where('id', $id->id))
+            ->allowedIncludes(['authors'])
+            ->firstOrFail();
+
+        return new BooksResource($query);
     }
 
     /**

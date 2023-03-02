@@ -81,7 +81,7 @@ class HandlerTest extends TestCase
                     'details' => 'You are not authenticated',
                 ]
             ]
-                ]);
+        ]);
     }
 
     /**
@@ -91,21 +91,26 @@ class HandlerTest extends TestCase
     public function it_converts_a_query_exception_into_a_not_found_exception()
     {
         /** @var Handler $handler */
-        // $handler = app(Handler::class);
+        $handler = app(Handler::class);
 
-        // $request = Request::create('/test', 'GET');
-        // $request->headers->set('accept', 'application/vnd.api+json');
+        $request = Request::create('/test', 'GET');
+        $request->headers->set('accept', 'application/vnd.api+json');
 
-        // $exception = new QueryException('select ? from ?', ['nane', 'nothing'], new \Exception(''));
+        $exception = new QueryException(
+            '',
+            'select ? from ?',
+            ['nane', 'nothing'],
+            new \Exception('')
+        );
 
-        // $response = $handler->render($request, $exception);
-        // TestResponse::fromBaseResponse($response)->assertJson([
-        //     'errors' => [
-        //         [
-        //             'title' => 'Not Found Http Exception',
-        //             'details' => 'Resource not found',
-        //         ]
-        //     ]
-        // ]);
+        $response = $handler->render($request, $exception);
+        TestResponse::fromBaseResponse($response)->assertJson([
+            'errors' => [
+                [
+                    'title' => 'Not Found Http Exception',
+                    'details' => 'Resource not found',
+                ]
+            ]
+        ]);
     }
 }

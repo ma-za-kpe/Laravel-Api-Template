@@ -57,6 +57,9 @@ class Handler extends ExceptionHandler
 
     public function render($request, Throwable $exception)
     {
+        if ($exception instanceof QueryException) {
+            $exception = new NotFoundHttpException('Resource not found');
+        }
         return parent::render($request, $exception);
     }
 
