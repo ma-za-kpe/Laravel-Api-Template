@@ -5,6 +5,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AuthorController;
+use App\Http\Controllers\BookController;
+use App\Http\Controllers\BooksAuthorsRelationshipsController;
+use App\Http\Controllers\BooksAuthorsRelatedController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,6 +19,44 @@ use App\Http\Controllers\AuthorController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+
+// // Authors
+// Route::apiResource('authors', 'AuthorsController');
+// // Books
+// Route::apiResource('books', 'BooksController');
+
+Route::group(['prefix' => 'v1'], function () {
+    Route::get('/books', [BookController::class, 'index'])->name('books.index');
+    Route::get('/books/{id}', [BookController::class, 'show'])->name('books.show');
+    Route::get('/books/search/{name}', [BookController::class, 'search']);
+
+
+    Route::get(
+        'books/{book}/relationships/authors',
+        [BooksAuthorsRelationshipsController::class, 'index']
+    )->name('books.relationships.authors');
+
+    Route::patch(
+        'books/{book}/relationships/authors',
+        [BooksAuthorsRelationshipsController::class, 'update']
+    )->name('books.relationships.authors');
+
+    Route::get(
+        'books/{book}/authors',
+        [BooksAuthorsRelatedController::class, 'index']
+    )->name('books.authors');
+
+    // uncomment this later
+    // Route::group(['middleware' => ['auth:sanctum']], function () {
+    //     Route::post('/books', [BookController::class, 'store']);
+    //     Route::put('/books/{id}', [BookController::class, 'update']);
+    //     Route::delete('/authors/{id}', [BookController::class, 'destroy']);
+    // });books
+
+    Route::post('/books', [BookController::class, 'store']);
+    Route::patch('/books/{id}', [BookController::class, 'update']);
+    Route::delete('/books/{id}', [BookController::class, 'destroy']);
+});
 
 
 Route::group(['prefix' => 'v1'], function () {
