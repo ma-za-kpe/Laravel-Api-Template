@@ -4,24 +4,24 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreAuthorRequest;
 use App\Http\Requests\UpdateAuthorRequest;
+use App\Http\Services\JSONAPIService;
 use App\Models\Author;
-use App\Http\Resources\JSONAPIResource;
-use App\Http\Resources\JSONAPICollection;
-use Spatie\QueryBuilder\QueryBuilder;
 
 class AuthorController extends Controller
 {
+
+    private $service;
+    public function __construct(JSONAPIService $service)
+    {
+        $this->service = $service;
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $authors = QueryBuilder::for(Author::class)->allowedSorts([
-            'name',
-            'created_at',
-            'updated_at',
-        ])->jsonPaginate();
-        return new JSONAPICollection($authors);
+        return $this->service->fetchResources(Author::class, 'authors');
     }
 
     /**
@@ -29,12 +29,7 @@ class AuthorController extends Controller
      */
     public function store(StoreAuthorRequest $request)
     {
-        $author = Author::create([
-            'name' => $request->input('data.attributes.name'),
-        ]);
-        return (new JSONAPIResource($author))
-            ->response()
-            ->header('Location', route('authors.show', $author));
+        return $this->service->createResource(Author::class, $request->input('data.attributes'));
     }
 
     /**
@@ -42,7 +37,7 @@ class AuthorController extends Controller
      */
     public function show(Author $id)
     {
-        return new JSONAPIResource($id);
+        return $this->service->fetchResource($id);
     }
 
     /**
@@ -50,8 +45,7 @@ class AuthorController extends Controller
      */
     public function update(UpdateAuthorRequest $request, Author $id)
     {
-        $id->update($request->input('data.attributes'));
-        return new JSONAPIResource($id);
+        return $this->service->updateResource($id, $request->input('data.attributes'));
     }
 
     /**
@@ -59,7 +53,6 @@ class AuthorController extends Controller
      */
     public function destroy(Author $id)
     {
-        $id->delete();
-        return response(null, 204);
+        return $this->service->deleteResource($id);
     }
 }

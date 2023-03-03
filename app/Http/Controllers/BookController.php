@@ -8,22 +8,23 @@ use App\Models\Book;
 use Spatie\QueryBuilder\QueryBuilder;
 use App\Http\Resources\JSONAPICollection;
 use App\Http\Resources\JSONAPIResource;
+use App\Http\Services\JSONAPIService;
 
 class BookController extends Controller
 {
+
+    private $service;
+    public function __construct(JSONAPIService $service)
+    {
+        $this->service = $service;
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $books = QueryBuilder::for(Book::class)
-            ->allowedSorts([
-                'title',
-                'publication_year',
-                'created_at',
-                'updated_at',
-            ])->allowedIncludes(['authors'])->jsonPaginate();
-        return new JSONAPICollection($books);
+        return $this->service->fetchResources(Book::class, 'books');
     }
 
     /**
@@ -31,16 +32,7 @@ class BookController extends Controller
      */
     public function store(StoreBookRequest $request)
     {
-        $book = Book::create([
-            'title' => $request->input('data.attributes.title'),
-            'description' => $request->input('data.attributes.description'),
-            'publication_year' => $request->input('data.attributes.publication_year'),
-        ]);
-        return (new JSONAPIResource($book))
-            ->response()
-            ->header('Location', route('books.show', [
-                'book' => $book,
-            ]));
+        return $this->service->createResource(Book::class, $request->input('data.attributes'));
     }
 
     /**
@@ -48,11 +40,7 @@ class BookController extends Controller
      */
     public function show($book)
     {
-        $query = QueryBuilder::for(Book::where('id', $book))
-            ->allowedIncludes(['authors'])
-            ->firstOrFail();
-
-        return new JSONAPIResource($query);
+        return $this->service->fetchResource(Book::class, $book, 'books');
     }
 
     /**
@@ -60,8 +48,7 @@ class BookController extends Controller
      */
     public function update(UpdateBookRequest $request, Book $book)
     {
-        $book->update($request->input('data.attributes'));
-        return new JSONAPIResource($book);
+        return $this->service->updateResource($book, $request->input('data.attributes'));
     }
 
     /**
@@ -69,7 +56,6 @@ class BookController extends Controller
      */
     public function destroy(Book $book)
     {
-        $book->delete();
-        return response(null, 204);
+        return $this->service->deleteResource($book);
     }
 }
