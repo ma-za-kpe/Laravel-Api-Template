@@ -7,6 +7,140 @@ use Illuminate\Foundation\Testing\DatabaseMigrations;
 
 uses(Tests\TestCase::class, DatabaseMigrations::class);
 
+it('it_includes_related_resource_objects_for_a_collection_when_an_include_query_', function () {
+    $books = Book::factory(3)->create();
+    $authors = Author::factory(3)->create();
+
+    $books->each(function ($book, $key) use ($authors) {
+        if ($key === 0) {
+            $book->authors()->sync($authors->pluck('id'));
+        }
+    });
+    $this->get('/api/v1/books?include=authors', [
+        'accept' => 'application/vnd.api+json',
+        'content-type' => 'application/vnd.api+json',
+    ])->assertStatus(200)->assertJson([
+        "data" => [
+            [
+                "id" => '1',
+                "type" => "books",
+                "attributes" => [
+                    'title' => $books[0]->title, 'description' => $books[0]->description,
+                    'publication_year' => $books[0]->publication_year,
+                    'created_at' => $books[0]->created_at->toJSON(),
+                    'updated_at' => $books[0]->updated_at->toJSON(),
+                ],
+                'relationships' => [
+                    'authors' => [
+                        'links' => [
+                            'self' => route(
+                                'books.relationships.authors',
+                                ['book' => $books[0]->id]
+                            ),
+                            'related' => route(
+                                'books.authors',
+                                ['book' => $books[0]->id]
+                            ),
+                        ],
+                        'data' => [
+                            [
+                                'id' => $authors->get(0)->id,
+                                'type' => 'authors'
+                            ],
+                            [
+                                'id' => $authors->get(1)->id,
+                                'type' => 'authors'
+                            ],
+                            [
+                                'id' => $authors->get(2)->id,
+                                'type' => 'authors'
+                            ]
+                        ]
+                    ]
+                ]
+            ],
+            [
+                "id" => '2',
+                "type" => "books",
+                "attributes" => [
+                    'title' => $books[1]->title, 'description' => $books[1]->description,
+                    'publication_year' => $books[1]->publication_year,
+                    'created_at' => $books[1]->created_at->toJSON(),
+                    'updated_at' => $books[1]->updated_at->toJSON(),
+                ],
+                'relationships' => [
+                    'authors' => [
+                        'links' => [
+                            'self' => route(
+                                'books.relationships.authors',
+                                ['id' => $books[1]->id]
+                            ),
+                            'related' => route(
+                                'books.authors',
+                                ['id' => $books[1]->id]
+                            ),
+                        ],
+                    ]
+                ]
+            ],
+            [
+                "id" => '3',
+                "type" => "books",
+                "attributes" => [
+                    'title' => $books[2]->title,
+                    'description' => $books[2]->description,
+                    'publication_year' => $books[2]->publication_year,
+                    'created_at' => $books[2]->created_at->toJSON(),
+                    'updated_at' => $books[2]->updated_at->toJSON(),
+                ],
+                'relationships' => [
+                    'authors' => [
+                        'links' => [
+                            'self' => route(
+                                'books.relationships.authors',
+                                ['id' => $books[2]->id]
+                            ),
+                            'related' => route(
+                                'books.authors',
+                                ['id' => $books[2]->id]
+                            ),
+                        ],
+                    ]
+                ]
+            ],
+        ],
+        'included' => [
+            [
+                "id" => '1',
+                "type" => "authors",
+                "attributes" => [
+                    'name' => $authors[0]->name,
+                    'created_at' => $authors[0]->created_at->toJSON(),
+                    'updated_at' => $authors[0]->updated_at->toJSON(),
+                ]
+            ],
+            [
+                "id" => '2',
+                "type" => "authors",
+                "attributes" => [
+                    'name' => $authors[1]->name,
+                    'created_at' => $authors[1]->created_at->toJSON(),
+                    'updated_at' => $authors[1]->updated_at->toJSON(),
+                ]
+            ],
+            [
+                "id" => '3',
+                "type" => "authors",
+                "attributes" => [
+                    'name' => $authors[2]->name,
+                    'created_at' => $authors[2]->created_at->toJSON(),
+                    'updated_at' => $authors[2]->updated_at->toJSON(),
+                ]
+            ],
+        ]
+    ]);
+});
+
 it('it_does_not_include_related_resource_objects_for_a_collection_when_an_incl', function () {
     $books = Book::factory(3)->create();
     $this->get('/api/v1/books', [
@@ -394,6 +528,8 @@ it('can a_relationship_link_to_authors_returns_all_related_authors_as_resource_i
     $authors = Author::factory(3)->create();
     $book->authors()->sync($authors->pluck('id'));
 
+    $this->withoutExceptionHandling();
+
     $this->getJson('/api/v1/books/1/relationships/authors', [
         'accept' => 'application/vnd.api+json',
         'content-type' => 'application/vnd.api+json',
@@ -417,44 +553,44 @@ it('can a_relationship_link_to_authors_returns_all_related_authors_as_resource_i
         ]);
 });
 
-// it('returns_a_relationship_to_authors_adhering_to_json_api_spec', function () {
-//     $book = Book::factory()->create();
-//     $authors = Author::factory(3)->create();
-//     $book->authors()->sync($authors->only('id'));
+it('returns_a_relationship_to_authors_adhering_to_json_api_spec', function () {
+    $book = Book::factory()->create();
+    $authors = Author::factory(3)->create();
+    $book->authors()->sync($authors->only('id'));
 
-//     $this->getJson('/api/v1/books/1', [
-//         'accept' => 'application/vnd.api+json',
-//         'content-type' => 'application/vnd.api+json',
-//     ])
-//         ->assertStatus(200)
-//         ->assertJson([
-//             'data' => [
-//                 'id' => '1',
-//                 'type' => 'books',
-//                 'relationships' => [
-//                     'authors' => [
-//                         'links' => [
-//                             'self' => route(
-//                                 'books.relationships.authors',
-//                                 ['book' => $book->id]
-//                             ),
-//                             'related' => route(
-//                                 'books.authors',
-//                                 ['book' => $book->id]
-//                             ),
-//                         ],
-//                         'data' => [
-//                             [
-//                                 'id' => $authors->get(0)->id,
-//                                 'type' => 'authors'
-//                             ],
-//                             [
-//                                 'id' => $authors->get(1)->id,
-//                                 'type' => 'authors'
-//                             ]
-//                         ]
-//                     ]
-//                 ]
-//             ]
-//         ]);
-// });
+    $this->getJson('/api/v1/books/1', [
+        'accept' => 'application/vnd.api+json',
+        'content-type' => 'application/vnd.api+json',
+    ])
+        ->assertStatus(200)
+        ->assertJson([
+            'data' => [
+                'id' => '1',
+                'type' => 'books',
+                'relationships' => [
+                    'authors' => [
+                        'links' => [
+                            'self' => route(
+                                'books.relationships.authors',
+                                ['book' => $book->id]
+                            ),
+                            'related' => route(
+                                'books.authors',
+                                ['book' => $book->id]
+                            ),
+                        ],
+                        'data' => [
+                            [
+                                'id' => $authors->get(0)->id,
+                                'type' => 'authors'
+                            ],
+                            [
+                                'id' => $authors->get(1)->id,
+                                'type' => 'authors'
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ]);
+});

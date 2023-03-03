@@ -5,9 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreBookRequest;
 use App\Http\Requests\UpdateBookRequest;
 use App\Models\Book;
-use App\Http\Resources\BooksResource;
 use Spatie\QueryBuilder\QueryBuilder;
-use App\Http\Resources\BooksCollection;
+use App\Http\Resources\JSONAPICollection;
+use App\Http\Resources\JSONAPIResource;
 
 class BookController extends Controller
 {
@@ -22,7 +22,7 @@ class BookController extends Controller
             'created_at',
             'updated_at',
         ])->jsonPaginate();
-        return new BooksCollection($books);
+        return new JSONAPICollection($books);
     }
 
     /**
@@ -35,40 +35,40 @@ class BookController extends Controller
             'description' => $request->input('data.attributes.description'),
             'publication_year' => $request->input('data.attributes.publication_year'),
         ]);
-        return (new BooksResource($book))
+        return (new JSONAPIResource($book))
             ->response()
             ->header('Location', route('books.show', [
-                'id' => $book,
+                'book' => $book,
             ]));
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Book $id)
+    public function show($book)
     {
-        $query = QueryBuilder::for(Book::where('id', $id->id))
+        $query = QueryBuilder::for(Book::where('id', $book))
             ->allowedIncludes(['authors'])
             ->firstOrFail();
 
-        return new BooksResource($query);
+        return new JSONAPIResource($query);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateBookRequest $request, Book $id)
+    public function update(UpdateBookRequest $request, Book $book)
     {
-        $id->update($request->input('data.attributes'));
-        return new BooksResource($id);
+        $book->update($request->input('data.attributes'));
+        return new JSONAPIResource($book);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Book $id)
+    public function destroy(Book $book)
     {
-        $id->delete();
+        $book->delete();
         return response(null, 204);
     }
 }

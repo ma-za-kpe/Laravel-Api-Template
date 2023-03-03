@@ -26,36 +26,19 @@ use App\Http\Controllers\BooksAuthorsRelatedController;
 // Route::apiResource('books', 'BooksController');
 
 Route::group(['prefix' => 'v1'], function () {
-    Route::get('/books', [BookController::class, 'index'])->name('books.index');
-    Route::get('/books/{id}', [BookController::class, 'show'])->name('books.show');
-    Route::get('/books/search/{name}', [BookController::class, 'search']);
-
-
+    Route::apiResource('/books', BookController::class);
     Route::get(
         'books/{book}/relationships/authors',
         [BooksAuthorsRelationshipsController::class, 'index']
     )->name('books.relationships.authors');
-
     Route::patch(
         'books/{book}/relationships/authors',
         [BooksAuthorsRelationshipsController::class, 'update']
     )->name('books.relationships.authors');
-
     Route::get(
-        'books/{book}/authors',
+        '/books/{book}/authors',
         [BooksAuthorsRelatedController::class, 'index']
     )->name('books.authors');
-
-    // uncomment this later
-    // Route::group(['middleware' => ['auth:sanctum']], function () {
-    //     Route::post('/books', [BookController::class, 'store']);
-    //     Route::put('/books/{id}', [BookController::class, 'update']);
-    //     Route::delete('/authors/{id}', [BookController::class, 'destroy']);
-    // });books
-
-    Route::post('/books', [BookController::class, 'store']);
-    Route::patch('/books/{id}', [BookController::class, 'update']);
-    Route::delete('/books/{id}', [BookController::class, 'destroy']);
 });
 
 
