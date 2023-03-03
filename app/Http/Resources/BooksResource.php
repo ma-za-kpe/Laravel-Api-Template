@@ -44,13 +44,22 @@ class BooksResource extends JsonResource
         ];
     }
 
-    // collect the related resources given in the include query parameter
+    public function with($request)
+    {
+        $with = [];
+        if ($this->included($request)->isNotEmpty()) {
+            $with['included'] = $this->included($request);
+        }
+        return $with;
+    }
+
     private function relations()
     {
         return [
             AuthorsResource::collection($this->whenLoaded('authors')),
         ];
     }
+
 
     public function included($request)
     {
@@ -59,14 +68,5 @@ class BooksResource extends JsonResource
                 return $resource->collection !== null;
             })
             ->flatMap->toArray($request);
-    }
-
-    public function with($request)
-    {
-        $with = [];
-        if ($this->included($request)->isNotEmpty()) {
-            $with['included'] = $this->included($request);
-        }
-        return $with;
     }
 }

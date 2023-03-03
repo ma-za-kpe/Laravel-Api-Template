@@ -16,12 +16,14 @@ class BookController extends Controller
      */
     public function index()
     {
-        $books = QueryBuilder::for(Book::class)->allowedSorts([
-            'title',
-            'publication_year',
-            'created_at',
-            'updated_at',
-        ])->jsonPaginate();
+        $books = QueryBuilder::for(Book::class)
+            ->allowedIncludes(['authors'])
+            ->allowedSorts([
+                'title',
+                'publication_year',
+                'created_at',
+                'updated_at',
+            ])->jsonPaginate();
         return new BooksCollection($books);
     }
 
@@ -38,16 +40,16 @@ class BookController extends Controller
         return (new BooksResource($book))
             ->response()
             ->header('Location', route('books.show', [
-                'id' => $book,
+                'book' => $book,
             ]));
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Book $id)
+    public function show($book)
     {
-        $query = QueryBuilder::for(Book::where('id', $id->id))
+        $query = QueryBuilder::for(Book::where('id', $book))
             ->allowedIncludes(['authors'])
             ->firstOrFail();
 
@@ -57,18 +59,18 @@ class BookController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateBookRequest $request, Book $id)
+    public function update(UpdateBookRequest $request, Book $book)
     {
-        $id->update($request->input('data.attributes'));
-        return new BooksResource($id);
+        $book->update($request->input('data.attributes'));
+        return new BooksResource($book);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Book $id)
+    public function destroy(Book $book)
     {
-        $id->delete();
+        $book->delete();
         return response(null, 204);
     }
 }

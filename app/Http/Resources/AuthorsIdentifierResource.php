@@ -14,7 +14,6 @@ class AuthorsIdentifierResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        //dd((string)$this->id);
         return [
             'id' => (string)$this->id,
             'type' => 'authors',
