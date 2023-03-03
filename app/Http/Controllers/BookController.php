@@ -5,9 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreBookRequest;
 use App\Http\Requests\UpdateBookRequest;
 use App\Models\Book;
-use App\Http\Resources\BooksResource;
 use Spatie\QueryBuilder\QueryBuilder;
-use App\Http\Resources\BooksCollection;
+use App\Http\Resources\JSONAPICollection;
+use App\Http\Resources\JSONAPIResource;
 
 class BookController extends Controller
 {
@@ -17,14 +17,13 @@ class BookController extends Controller
     public function index()
     {
         $books = QueryBuilder::for(Book::class)
-            ->allowedIncludes(['authors'])
             ->allowedSorts([
                 'title',
                 'publication_year',
                 'created_at',
                 'updated_at',
-            ])->jsonPaginate();
-        return new BooksCollection($books);
+            ])->allowedIncludes(['authors'])->jsonPaginate();
+        return new JSONAPICollection($books);
     }
 
     /**
@@ -37,7 +36,7 @@ class BookController extends Controller
             'description' => $request->input('data.attributes.description'),
             'publication_year' => $request->input('data.attributes.publication_year'),
         ]);
-        return (new BooksResource($book))
+        return (new JSONAPIResource($book))
             ->response()
             ->header('Location', route('books.show', [
                 'book' => $book,
@@ -53,7 +52,7 @@ class BookController extends Controller
             ->allowedIncludes(['authors'])
             ->firstOrFail();
 
-        return new BooksResource($query);
+        return new JSONAPIResource($query);
     }
 
     /**
@@ -62,7 +61,7 @@ class BookController extends Controller
     public function update(UpdateBookRequest $request, Book $book)
     {
         $book->update($request->input('data.attributes'));
-        return new BooksResource($book);
+        return new JSONAPIResource($book);
     }
 
     /**
