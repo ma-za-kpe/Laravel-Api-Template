@@ -6,6 +6,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AuthorController;
 use App\Http\Controllers\BookController;
+use App\Http\Controllers\UsersController;
 use App\Http\Controllers\BooksAuthorsRelationshipsController;
 use App\Http\Controllers\BooksAuthorsRelatedController;
 
@@ -44,6 +45,12 @@ Route::group(['prefix' => 'v1'], function () {
 
     // authors
     Route::apiResource('/authors', AuthorController::class);
+
+    // Users
+    Route::apiResource('users', UsersController::class);
+    Route::get('/users/current', function (Request $request) {
+        return $request->user();
+    });
 });
 
 Route::group(['prefix' => 'v1/auth'], function () {

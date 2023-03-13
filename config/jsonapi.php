@@ -1,4 +1,8 @@
 <?php
+
+use Spatie\QueryBuilder\AllowedFilter;
+use Spatie\QueryBuilder\Filters\Filter;
+
 return [
     'resources' => [
         'authors' => [
@@ -7,6 +11,7 @@ return [
                 'created_at',
                 'updated_at',
             ],
+            'allowedFilters' => [],
             'validationRules' => [
                 'create' => [
                     'data.attributes.name' => 'required|string',
@@ -26,6 +31,7 @@ return [
             'allowedIncludes' => [
                 'authors'
             ],
+            'allowedFilters' => [],
             'validationRules' => [
                 'create' => [
                     'data.attributes.title' => 'required|string',
@@ -44,6 +50,30 @@ return [
                     'method' => 'authors',
                 ]
             ]
+        ],
+        'users' => [
+            'allowedSorts' => [
+                'name',
+                'email',
+            ],
+            'allowedFilters' => [
+                AllowedFilter::exact('role'),
+            ],
+            'allowedIncludes' => [],
+            'validationRules' => [
+                'create' => [
+                    'data.attributes.name' => 'required|string',
+                    'data.attributes.email' => 'required|unique:users,email',
+                    'data.attributes.password' => 'required|string',
+                ],
+                'update' => [
+                    'data.attributes.name' => 'sometimes|required|string',
+                    'data.attributes.email' => 'sometimes|required|email',
+                    'data.attributes.password' => 'sometimes|required|string',
+                ]
+            ],
+            'relationships' => []
         ]
+
     ]
 ];
