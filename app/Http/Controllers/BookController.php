@@ -2,13 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreBookRequest;
-use App\Http\Requests\UpdateBookRequest;
-use App\Models\Book;
-use Spatie\QueryBuilder\QueryBuilder;
-use App\Http\Resources\JSONAPICollection;
-use App\Http\Resources\JSONAPIResource;
+use App\Http\Requests\JSONAPIRequest;
 use App\Http\Services\JSONAPIService;
+use App\Models\Book;
 
 class BookController extends Controller
 {
@@ -30,7 +26,7 @@ class BookController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreBookRequest $request)
+    public function store(JSONAPIRequest $request)
     {
         return $this->service->createResource(Book::class, $request->input('data.attributes'));
     }
@@ -46,7 +42,7 @@ class BookController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateBookRequest $request, Book $book)
+    public function update(JSONAPIRequest $request, Book $book)
     {
         return $this->service->updateResource($book, $request->input('data.attributes'));
     }

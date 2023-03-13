@@ -83,6 +83,7 @@ class Handler extends ExceptionHandler
     {
         $errors = (new Collection($exception->validator->errors()))
             ->map(function ($error, $key) {
+                //dd($error[0]);
                 return [
                     'title' => 'Validation Error',
                     'details' => $error[0],

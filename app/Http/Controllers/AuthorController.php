@@ -2,8 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreAuthorRequest;
-use App\Http\Requests\UpdateAuthorRequest;
+use App\Http\Requests\JSONAPIRequest;
 use App\Http\Services\JSONAPIService;
 use App\Models\Author;
 
@@ -27,7 +26,7 @@ class AuthorController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreAuthorRequest $request)
+    public function store(JSONAPIRequest $request)
     {
         return $this->service->createResource(Author::class, $request->input('data.attributes'));
     }
@@ -35,24 +34,24 @@ class AuthorController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Author $id)
+    public function show(Author $author)
     {
-        return $this->service->fetchResource($id);
+        return $this->service->fetchResource($author);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateAuthorRequest $request, Author $id)
+    public function update(JSONAPIRequest $request, Author $author)
     {
-        return $this->service->updateResource($id, $request->input('data.attributes'));
+        return $this->service->updateResource($author, $request->input('data.attributes'));
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Author $id)
+    public function destroy(Author $author)
     {
-        return $this->service->deleteResource($id);
+        return $this->service->deleteResource($author);
     }
 }

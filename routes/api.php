@@ -26,6 +26,8 @@ use App\Http\Controllers\BooksAuthorsRelatedController;
 // Route::apiResource('books', 'BooksController');
 
 Route::group(['prefix' => 'v1'], function () {
+
+    // books
     Route::apiResource('/books', BookController::class);
     Route::get(
         '/books/{book}/relationships/authors',
@@ -39,24 +41,9 @@ Route::group(['prefix' => 'v1'], function () {
         '/books/{book}/authors',
         [BooksAuthorsRelatedController::class, 'index']
     )->name('books.authors');
-});
 
-
-Route::group(['prefix' => 'v1'], function () {
-    Route::get('/authors', [AuthorController::class, 'index'])->name('authors.index');
-    Route::get('/authors/{id}', [AuthorController::class, 'show'])->name('authors.show');
-    Route::get('/authors/search/{name}', [AuthorController::class, 'search']);
-
-    // uncomment this later
-    // Route::group(['middleware' => ['auth:sanctum']], function () {
-    //     Route::post('/authors', [AuthorController::class, 'store']);
-    //     Route::put('/authors/{id}', [AuthorController::class, 'update']);
-    //     Route::delete('/authors/{id}', [AuthorController::class, 'destroy']);
-    // });
-
-    Route::post('/authors', [AuthorController::class, 'store']);
-    Route::patch('/authors/{id}', [AuthorController::class, 'update']);
-    Route::delete('/authors/{id}', [AuthorController::class, 'destroy']);
+    // authors
+    Route::apiResource('/authors', AuthorController::class);
 });
 
 Route::group(['prefix' => 'v1/auth'], function () {
