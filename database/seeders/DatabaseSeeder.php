@@ -1,7 +1,9 @@
 <?php
 
 namespace Database\Seeders;
+
 use Database\Seeders\AuthorsTableSeeder;
+use Database\Seeders\BooksTableSeeder;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -20,5 +22,6 @@ class DatabaseSeeder extends Seeder
         //     'email' => 'test@example.com',
         // ]);
         $this->call(AuthorsTableSeeder::class);
+        $this->call(BooksTableSeeder::class);
     }
 }

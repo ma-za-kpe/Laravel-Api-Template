@@ -2,64 +2,56 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreAuthorRequest;
-use App\Http\Requests\UpdateAuthorRequest;
+use App\Http\Requests\JSONAPIRequest;
+use App\Http\Services\JSONAPIService;
 use App\Models\Author;
-use App\Http\Resources\AuthorsResource;
-use App\Http\Resources\AuthorsCollection;
-use Spatie\QueryBuilder\QueryBuilder;
 
 class AuthorController extends Controller
 {
+
+    private $service;
+    public function __construct(JSONAPIService $service)
+    {
+        $this->service = $service;
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $authors = QueryBuilder::for(Author::class)->allowedSorts([
-            'name',
-            'created_at',
-            'updated_at',
-        ])->jsonPaginate();
-        return new AuthorsCollection($authors);
+        return $this->service->fetchResources(Author::class, 'authors');
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreAuthorRequest $request)
+    public function store(JSONAPIRequest $request)
     {
-        $author = Author::create([
-            'name' => $request->input('data.attributes.name'),
-        ]);
-        return (new AuthorsResource($author))
-            ->response()
-            ->header('Location', route('authors.show', $author));
+        return $this->service->createResource(Author::class, $request->input('data.attributes'));
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Author $id)
+    public function show(Author $author)
     {
-        return new AuthorsResource($id);
+        return $this->service->fetchResource($author);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateAuthorRequest $request, Author $id)
+    public function update(JSONAPIRequest $request, Author $author)
     {
-        $id->update($request->input('data.attributes'));
-        return new AuthorsResource($id);
+        return $this->service->updateResource($author, $request->input('data.attributes'));
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Author $id)
+    public function destroy(Author $author)
     {
-        $id->delete();
-        return response(null, 204);
+        return $this->service->deleteResource($author);
     }
 }

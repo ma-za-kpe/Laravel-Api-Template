@@ -26,54 +26,24 @@ use App\Http\Controllers\BooksAuthorsRelatedController;
 // Route::apiResource('books', 'BooksController');
 
 Route::group(['prefix' => 'v1'], function () {
-    Route::get('/books', [BookController::class, 'index'])->name('books.index');
-    Route::get('/books/{id}', [BookController::class, 'show'])->name('books.show');
-    Route::get('/books/search/{name}', [BookController::class, 'search']);
 
-
+    // books
+    Route::apiResource('/books', BookController::class);
     Route::get(
-        'books/{book}/relationships/authors',
+        '/books/{book}/relationships/authors',
         [BooksAuthorsRelationshipsController::class, 'index']
     )->name('books.relationships.authors');
-
     Route::patch(
-        'books/{book}/relationships/authors',
+        '/books/{book}/relationships/authors',
         [BooksAuthorsRelationshipsController::class, 'update']
     )->name('books.relationships.authors');
-
     Route::get(
-        'books/{book}/authors',
+        '/books/{book}/authors',
         [BooksAuthorsRelatedController::class, 'index']
     )->name('books.authors');
 
-    // uncomment this later
-    // Route::group(['middleware' => ['auth:sanctum']], function () {
-    //     Route::post('/books', [BookController::class, 'store']);
-    //     Route::put('/books/{id}', [BookController::class, 'update']);
-    //     Route::delete('/authors/{id}', [BookController::class, 'destroy']);
-    // });books
-
-    Route::post('/books', [BookController::class, 'store']);
-    Route::patch('/books/{id}', [BookController::class, 'update']);
-    Route::delete('/books/{id}', [BookController::class, 'destroy']);
-});
-
-
-Route::group(['prefix' => 'v1'], function () {
-    Route::get('/authors', [AuthorController::class, 'index'])->name('authors.index');
-    Route::get('/authors/{id}', [AuthorController::class, 'show'])->name('authors.show');
-    Route::get('/authors/search/{name}', [AuthorController::class, 'search']);
-
-    // uncomment this later
-    // Route::group(['middleware' => ['auth:sanctum']], function () {
-    //     Route::post('/authors', [AuthorController::class, 'store']);
-    //     Route::put('/authors/{id}', [AuthorController::class, 'update']);
-    //     Route::delete('/authors/{id}', [AuthorController::class, 'destroy']);
-    // });
-
-    Route::post('/authors', [AuthorController::class, 'store']);
-    Route::patch('/authors/{id}', [AuthorController::class, 'update']);
-    Route::delete('/authors/{id}', [AuthorController::class, 'destroy']);
+    // authors
+    Route::apiResource('/authors', AuthorController::class);
 });
 
 Route::group(['prefix' => 'v1/auth'], function () {
