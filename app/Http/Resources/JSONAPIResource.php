@@ -25,7 +25,7 @@ class JSONAPIResource extends JsonResource
 
     private function prepareRelationships()
     {
-        return collect(config("jsonapi.resources.{$this->type()}.relationships"))
+        $collection = collect(config("jsonapi.resources.{$this->type()}.relationships"))
             ->flatMap(function ($related) {
                 $relatedType = $related['type'];
                 $relationship = $related['method'];
@@ -43,10 +43,14 @@ class JSONAPIResource extends JsonResource
                         ],
                         'data' => !$this->whenLoaded($relationship)
                             instanceof MissingValue ?
-                            JSONAPIIdentifierResource::collection($this->{$relationship}) : new MissingValue(),
+                            JSONAPIIdentifierResource::collection(
+                                $this->{$relationship}
+                            ) : new MissingValue(),
                     ],
                 ];
             });
+
+        return $collection->count() > 0 ? $collection : new MissingValue();
     }
 
     public function with($request)
